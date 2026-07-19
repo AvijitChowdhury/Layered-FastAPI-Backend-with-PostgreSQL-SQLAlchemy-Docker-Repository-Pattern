@@ -13,6 +13,12 @@ Containerized Task Management API is a clean, container-friendly FastAPI service
 
 This project demonstrates a practical backend architecture built around FastAPI and SQLAlchemy. It supports full CRUD operations for tasks, switches between PostgreSQL and an in-memory repository depending on environment configuration, and exposes Swagger UI for testing endpoints directly in the browser.
 
+## 🏗️ System Architecture
+
+<p align="center">
+  <img src="assests/architecture.png" alt="Task API Architecture" width="1000"/>
+</p>
+
 ### What makes this project strong
 
 - Clean separation of concerns: routes, service layer, repository abstraction
