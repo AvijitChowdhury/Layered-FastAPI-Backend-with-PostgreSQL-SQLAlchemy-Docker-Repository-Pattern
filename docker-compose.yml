@@ -1,0 +1,81 @@
+# ============================================================
+# docker-compose.yml
+#
+# Starts three services with one command: docker compose up
+#
+# SERVICES
+#   db    — PostgreSQL 16 (persistent storage)
+#   app   — FastAPI application (built from Dockerfile)
+#   redis — Redis 7 (stretch goal, used in W4)
+#
+# NETWORKING
+#   Docker creates a private network for these services.
+#   Services reach each other by service name as hostname:
+#     app → db    via  host "db",    port 5432
+#     app → redis via  host "redis", port 6379
+#   Your laptop reaches them via localhost:PORT (mapped below).
+#
+# VOLUMES
+#   postgres_data — named volume; survives docker compose down.
+#                   Data deleted only by: docker compose down -v
+# ============================================================
+
+services:
+
+  # ── PostgreSQL ────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       tasks
+      POSTGRES_USER:     taskuser
+      POSTGRES_PASSWORD: taskpass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # NOTE: No init.sql mount needed anymore —
+      # SQLAlchemy creates the table on app startup via
+      # Base.metadata.create_all(engine) in main.py lifespan
+    ports:
+      - "5432:5432"     # localhost:5432 → container:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskuser -d tasks"]
+      interval: 5s
+      timeout: 5s
+      retries: 10       # give Postgres time to start on first launch
+
+  # ── FastAPI app ───────────────────────────────────────────
+  app:
+    build: .            # reads Dockerfile in current directory
+    restart: unless-stopped
+    environment:
+      # SQLAlchemy connection string format:
+      #   postgresql+psycopg2://USER:PASS@HOST:PORT/DBNAME
+      # HOST = "db" (the service name above, Docker DNS resolves it)
+      DATABASE_URL: postgresql+psycopg2://taskuser:taskpass@db:5432/tasks
+    ports:
+      - "8000:8000"     # localhost:8000 → container:8000
+    depends_on:
+      db:
+        condition: service_healthy   # wait for Postgres healthcheck to pass
+    env_file:
+      - path: .env
+        required: false  # .env is optional (docker-compose env vars take priority)
+
+  # ── Redis (Stretch / W4) ──────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+# ── Named volumes ─────────────────────────────────────────────
+volumes:
+  postgres_data:
+    # Docker manages the storage location on your machine.
+    # Windows: C:\Users\<user>\AppData\Local\Docker\...
+    # Mac/Linux: /var/lib/docker/volumes/...
