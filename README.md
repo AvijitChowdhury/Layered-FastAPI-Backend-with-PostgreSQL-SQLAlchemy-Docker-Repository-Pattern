@@ -1,4 +1,4 @@
-# Task API
+# Containerized Task Management API
 
 Task API is a clean, container-friendly FastAPI service for managing tasks with layered architecture, SQLAlchemy ORM, PostgreSQL persistence, and interactive API documentation.
 
