@@ -1,6 +1,6 @@
 # Containerized Task Management API
 
-Task API is a clean, container-friendly FastAPI service for managing tasks with layered architecture, SQLAlchemy ORM, PostgreSQL persistence, and interactive API documentation.
+Containerized Task Management API is a clean, container-friendly FastAPI service for managing tasks with layered architecture, SQLAlchemy ORM, PostgreSQL persistence, and interactive API documentation.
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-red)](https://sqlalchemy.org)
